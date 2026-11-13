@@ -1,0 +1,8 @@
+# The image only needs the three packages; everything else is bind-mounted at run time.
+*
+!frame-core
+!frame-kinematics
+!frame-batch
+**/__pycache__
+**/*.egg-info
+**/.pytest_cache

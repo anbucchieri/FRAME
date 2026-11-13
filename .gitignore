@@ -1,0 +1,27 @@
+# Python
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+build/
+dist/
+
+# Only the bundled example (data/S1) is versioned; keep real datasets outside the repository
+# and point data_root in batch.json at them.
+data/*
+!data/S1/
+
+# Analysis outputs and the per-trial cache -- regenerate with ./frame run / ./frame report
+results*/
+cache/
+
+# Per-subject DHMs are built from the dataset, not source
+models/subject_*.urdf
+models/subject_*.xacro
+
+# Editors and local tooling
+.claude/
+.vscode/
+.idea/
+.DS_Store
+.~lock.*#

@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=77", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "frame-batch"
+version = "0.1.0"
+description = "Pooled entry point for FRAME: analyse a whole dataset of MVNX recordings and report each metric's distribution per task type."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+dependencies = [
+    "frame-core>=0.1.0",
+    "frame-kinematics>=0.1.0",
+    "numpy>=1.23",
+    "pandas>=1.5",
+]
+
+[project.optional-dependencies]
+plots = ["matplotlib>=3.6"]
+test = ["pytest>=7"]
+
+[project.scripts]
+frame-batch = "frame_batch.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# FRAME -- run the batch tool in its container, with the paths from batch.json.
+#
+#   ./frame build                   build the image (once, and after changing frame-*/src)
+#   ./frame list                    what the dataset looks like, without analysing anything
+#   ./frame run --jobs 6            analyse every recording, pool, write the report
+#   ./frame report                  re-pool and re-plot from the cache (no IK)
+#   ./frame reanalyse               recompute every metric from the cached captures (no IK)
+#   ./frame config                  print the effective configuration
+#
+# Docker cannot read batch.json, so this script does: it bind-mounts data_root (read-only),
+# cache_root and output_root, and runs the container as your user so outputs are not root-owned.
+#
+# It uses `docker run --mount` on purpose: a removable-drive mount point may contain a colon
+# (/mnt/usb-...-0:0-part1), which every colon-separated volume spec rejects.
+set -euo pipefail
+cd "$(dirname "$0")"
+
+IMAGE=frame:local
+
+build() { docker build -t "$IMAGE" .; }
+
+if [ "${1:-}" = "build" ]; then
+    build
+    exit 0
+fi
+
+if [ ! -f batch.json ]; then
+    echo "batch.json not found in $(pwd)" >&2
+    exit 1
+fi
+
+paths="$(python3 - <<'PY'
+import json, os, shlex, sys
+try:
+    cfg = json.load(open("batch.json"))
+except json.JSONDecodeError as e:
+    sys.stderr.write(f"batch.json is not valid JSON: {e.msg} at line {e.lineno}, column {e.colno}.\n"
+                     "Common causes: a comma after the last item of a list, or a missing quote.\n")
+    sys.exit(1)
+data = os.path.abspath(os.path.expanduser(cfg.get("data_root") or "data"))
+out = os.path.abspath(os.path.expanduser(cfg.get("output_root") or "results"))
+cache = os.path.abspath(os.path.expanduser(cfg.get("cache_root") or os.path.join(out, "cache")))
+if not os.path.isdir(data):
+    sys.stderr.write(f"data_root does not exist (is the drive mounted?):\n  {data}\n")
+    sys.exit(1)
+for name, path in (("DATA", data), ("OUT", out), ("CACHE", cache)):
+    print(f"export FRAME_HOST_{name}={shlex.quote(path)}")
+PY
+)" || exit 1
+eval "$paths"
+
+if ! docker image inspect "$IMAGE" >/dev/null 2>&1; then
+    echo "image $IMAGE not found -- building it first"
+    build
+fi
+
+mkdir -p "$FRAME_HOST_CACHE" "$FRAME_HOST_OUT" models
+echo "data : $FRAME_HOST_DATA  (read-only)"
+echo "cache: $FRAME_HOST_CACHE"
+echo "out  : $FRAME_HOST_OUT"
+
+exec docker run --rm -i \
+    --user "$(id -u):$(id -g)" \
+    --mount type=bind,source="$PWD/utils",target=/opt/frame/utils,readonly \
+    --mount type=bind,source="$PWD/models",target=/opt/frame/models \
+    --mount type=bind,source="$PWD/batch.json",target=/opt/frame/batch.json,readonly \
+    --mount type=bind,source="$FRAME_HOST_DATA",target=/opt/frame/dataset,readonly \
+    --mount type=bind,source="$FRAME_HOST_CACHE",target=/opt/frame/cache \
+    --mount type=bind,source="$FRAME_HOST_OUT",target=/opt/frame/out \
+    -e HOME=/tmp \
+    -e MPLCONFIGDIR=/tmp/mpl \
+    -e FRAME_DATA_ROOT=/opt/frame/dataset \
+    -e FRAME_CACHE_ROOT=/opt/frame/cache \
+    -e FRAME_OUTPUT_ROOT=/opt/frame/out \
+    -w /opt/frame \
+    "$IMAGE" "$@"

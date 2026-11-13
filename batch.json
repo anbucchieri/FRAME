@@ -1,0 +1,36 @@
+{
+  "data_root": "data",
+  "cache_root": null,
+  "output_root": "results",
+
+  "trial_pattern": "^(?P<subject>[^_]+)_(?P<task>[A-Za-z])_(?P<orientation>[A-Za-z])_(?:[A-Za-z])_(?P<rep>\\d+)$",
+  "pool_by": ["task"],
+
+  "joints_of_interest": [
+    "right_shoulder_plane", "right_shoulder_elevation", "right_shoulder_rotation",
+    "right_elbow_Y", "right_elbow_Z", "lumbarspine_Y"
+  ],
+
+  "figures": [
+    "npose_torque_map_by_task",
+    "torque_speed_by_task",
+    "joint_timeseries_by_task",
+    "peak_torque_by_task",
+    "rms_torque_by_task",
+    "joint_speed_by_task",
+    "torque_exceedance_by_task",
+    "shoulder_globe_by_task",
+    "joint_pose_timeseries"
+  ],
+  "figure_format": "pdf",
+  "coverage_exo_urdf": "models/exoskeleton/exo1_full.urdf",
+
+  "capacity_overrides": {
+    "right_shoulder_plane": {"effort": 53.9, "velocity": 3.002, "source": "Zimmermann et al. 2023 (ANYexo 2.0) Table III, mean human GH: torque Hogrel et al. 2007, speed = max ADL speed, Rosen et al. 2005"},
+    "right_shoulder_elevation": {"effort": 53.9, "velocity": 3.002, "source": "Zimmermann et al. 2023 (ANYexo 2.0) Table III, mean human GH: torque Hogrel et al. 2007, speed = max ADL speed, Rosen et al. 2005"},
+    "left_shoulder_plane": {"effort": 53.9, "velocity": 3.002, "source": "Zimmermann et al. 2023 (ANYexo 2.0) Table III, mean human GH: torque Hogrel et al. 2007, speed = max ADL speed, Rosen et al. 2005"},
+    "left_shoulder_elevation": {"effort": 53.9, "velocity": 3.002, "source": "Zimmermann et al. 2023 (ANYexo 2.0) Table III, mean human GH: torque Hogrel et al. 2007, speed = max ADL speed, Rosen et al. 2005"}
+  },
+
+  "jobs": 2
+}

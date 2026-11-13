@@ -1,0 +1,2 @@
+# Recordings exceed GitHub's 100 MB per-file limit, so they are stored with Git LFS.
+*.mvnx filter=lfs diff=lfs merge=lfs -text

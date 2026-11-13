@@ -1,0 +1,1129 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="dhm">
+	<xacro:property name="bodyHeight" value="1.9"/>
+	<xacro:property name="BMI" value="29.91689750692521"/>
+	<xacro:property name="isBMIgreaterThanAverage" value="0"/>
+	<xacro:property name="PI" value="3.1415926535897931"/>
+	<xacro:property name="bodyMass" value="108"/>
+	<xacro:property name="maxVelJoint" value="10.0"/>
+	<xacro:property name="forceCapacity" value="1.0"/>
+	<xacro:property name="jointDamping" value="0.1"/>
+	<xacro:property name="jointFriction" value="0."/>
+	<xacro:property name="S5_L5" value="0.108316"/>
+	<xacro:property name="L5_T8" value="0.341289"/>
+	<xacro:property name="T8_C7" value="0.154148"/>
+	<xacro:property name="C7_C1" value="0.102566"/>
+	<xacro:property name="C1_headtop" value="0.190476"/>
+	<xacro:property name="head_radius" value="0.10656600000000001"/>
+	<xacro:property name="headbase_headtop" value="${1.1*C1_headtop}"/>
+	<xacro:property name="r_armLength" value="0.331994"/>
+	<xacro:property name="r_forearmLength" value="0.271576"/>
+	<xacro:property name="r_handLength" value="0.20327"/>
+	<xacro:property name="r_spine_shoulder" value="0.18906"/>
+	<xacro:property name="r_T8_CSJheight" value="0.086386"/>
+	<xacro:property name="r_spine_CSJ" value="0.033455"/>
+	<xacro:property name="r_shoulderWidth" value="0.155605"/>
+	<xacro:property name="l_armLength" value="0.331994"/>
+	<xacro:property name="l_forearmLength" value="0.271576"/>
+	<xacro:property name="l_handLength" value="0.20327"/>
+	<xacro:property name="l_spine_shoulder" value="0.18906"/>
+	<xacro:property name="l_T8_CSJheight" value="0.086386"/>
+	<xacro:property name="l_spine_CSJ" value="0.033455"/>
+	<xacro:property name="l_shoulderWidth" value="0.155605"/>
+	<xacro:property name="r_hipWidth" value="0.088907"/>
+	<xacro:property name="r_legLength" value="0.460135"/>
+	<xacro:property name="r_shankLength" value="0.450138"/>
+	<xacro:property name="r_footThickness" value="0.097768"/>
+	<xacro:property name="r_footFrontLength" value="0.25538700000000003"/>
+	<xacro:property name="r_footRearLength" value="0.044611"/>
+	<xacro:property name="l_hipWidth" value="0.088907"/>
+	<xacro:property name="l_legLength" value="0.460135"/>
+	<xacro:property name="l_shankLength" value="0.450138"/>
+	<xacro:property name="l_footThickness" value="0.097768"/>
+	<xacro:property name="l_footFrontLength" value="0.25538700000000003"/>
+	<xacro:property name="l_footRearLength" value="0.044611"/>
+	<xacro:property name="slimBMI" value="17"/>
+	<xacro:property name="normBMI" value="22"/>
+	<xacro:property name="fatBMI" value="40"/>
+	<xacro:property name="slimAlpha" value="0.9"/>
+	<xacro:property name="normAlpha" value="1.0"/>
+	<xacro:property name="fatAlpha" value="1.3"/>
+	<xacro:if value="${isBMIgreaterThanAverage == 1}">
+		<xacro:property name="alpha" value="${1 + (fatAlpha  - normAlpha) * (BMI - normBMI) / (fatBMI - normBMI)}"/>
+	</xacro:if>
+	<xacro:if value="${isBMIgreaterThanAverage == 0}">
+		<xacro:property name="alpha" value="${1 - (normAlpha - slimAlpha) * (normBMI - BMI) / (normBMI - slimBMI)}"/>
+	</xacro:if>
+	<xacro:property name="collision_width_factor" value="0.66"/>
+	<xacro:property name="collision_height_factor" value="0.95"/>
+	<xacro:property name="collision_depth_factor" value="0.66"/>
+	<xacro:property name="hip_thickness" value="${alpha*0.08}"/>
+	<xacro:property name="pelvis_length" value="${S5_L5 + hip_thickness}"/>
+	<xacro:property name="pelvis_width" value="${r_hipWidth + l_hipWidth + 0.7*hip_thickness + alpha*0.11}"/>
+	<xacro:property name="pelvis_depth" value="${2*alpha*0.11}"/>
+	<xacro:property name="lumbarspine_length" value="${L5_T8}"/>
+	<xacro:property name="lumbarspine_width" value="${r_hipWidth + l_hipWidth + alpha*0.105}"/>
+	<xacro:property name="lumbarspine_depth" value="${2*alpha*0.105}"/>
+	<xacro:property name="thoracicspine_length" value="${T8_C7}"/>
+	<xacro:property name="thoracicspine_width" value="${0.7*(r_spine_shoulder + l_spine_shoulder) +alpha*0.10}"/>
+	<xacro:property name="thoracicspine_depth" value="${2*alpha*0.10}"/>
+	<xacro:property name="neck_length" value="${C7_C1}"/>
+	<xacro:property name="neck_radius" value="${alpha*0.045}"/>
+	<xacro:property name="head_length" value="${headbase_headtop}"/>
+	<xacro:property name="r_clavicular_length" value="${r_shoulderWidth}"/>
+	<xacro:property name="l_clavicular_length" value="${l_shoulderWidth}"/>
+	<xacro:property name="clavicular_radius" value="${alpha*0.06}"/>
+	<xacro:property name="r_arm_length" value="${r_armLength}"/>
+	<xacro:property name="l_arm_length" value="${l_armLength}"/>
+	<xacro:property name="arm_radius" value="${alpha*0.05}"/>
+	<xacro:property name="r_forearm_length" value="${r_forearmLength}"/>
+	<xacro:property name="l_forearm_length" value="${l_forearmLength}"/>
+	<xacro:property name="forearm_radius" value="${alpha*0.04}"/>
+	<xacro:property name="r_palm_length" value="${0.5*r_handLength}"/>
+	<xacro:property name="l_palm_length" value="${0.5*l_handLength}"/>
+	<xacro:property name="palm_width" value="${2*alpha*0.04}"/>
+	<xacro:property name="palm_depth" value="${2*alpha*0.015}"/>
+	<xacro:property name="r_fingers_length" value="${0.5*r_handLength}"/>
+	<xacro:property name="l_fingers_length" value="${0.5*l_handLength}"/>
+	<xacro:property name="fingers_width" value="${palm_width}"/>
+	<xacro:property name="fingers_depth" value="${palm_depth}"/>
+	<xacro:property name="r_thigh_length" value="${r_legLength}"/>
+	<xacro:property name="l_thigh_length" value="${l_legLength}"/>
+	<xacro:property name="thigh_radius" value="${alpha*0.08}"/>
+	<xacro:property name="r_shank_length" value="${r_shankLength}"/>
+	<xacro:property name="l_shank_length" value="${l_shankLength}"/>
+	<xacro:property name="shank_radius" value="${alpha*0.06}"/>
+	<xacro:property name="r_foot_length" value="${r_footFrontLength + r_footRearLength}"/>
+	<xacro:property name="l_foot_length" value="${l_footFrontLength + l_footRearLength}"/>
+	<xacro:property name="r_foot_width" value="${0.4*r_foot_length}"/>
+	<xacro:property name="l_foot_width" value="${0.4*l_foot_length}"/>
+	<xacro:property name="r_foot_depth" value="${r_footThickness}"/>
+	<xacro:property name="l_foot_depth" value="${l_footThickness}"/>
+	<xacro:property name="massNorm" value="${-0.0426 + 1.00096*bodyMass + 0.00058*bodyHeight*100}"/>
+	<xacro:property name="lowertorso_mass" value="${bodyMass * (-7.498 + 0.0976*bodyMass + 0.04896*bodyHeight*100) / massNorm}"/>
+	<xacro:property name="middletorso_mass" value="${bodyMass * (7.181 + 0.2234*bodyMass - 0.0663*bodyHeight*100) / massNorm}"/>
+	<xacro:property name="uppertorso_mass" value="${bodyMass * (8.2144 + 0.1862*bodyMass - 0.0584*bodyHeight*100) / massNorm}"/>
+	<xacro:property name="pelvis_mass" value="${lowertorso_mass}"/>
+	<xacro:property name="lumbarspine_mass" value="${middletorso_mass}"/>
+	<xacro:property name="thoracicspine_mass" value="${(1.0-0.1)*uppertorso_mass}"/>
+	<xacro:property name="neckandhead_mass" value="${bodyMass * (1.296 + 0.0171*bodyMass + 0.0143*bodyHeight*100) / massNorm}"/>
+	<xacro:property name="neck_mass" value="${0.1*neckandhead_mass}"/>
+	<xacro:property name="head_mass" value="${0.9*neckandhead_mass}"/>
+	<xacro:property name="clavicular_mass" value="${0.05*uppertorso_mass}"/>
+	<xacro:property name="arm_mass" value="${bodyMass * (0.25 + 0.03012*bodyMass - 0.0027*bodyHeight*100) / massNorm}"/>
+	<xacro:property name="forearm_mass" value="${bodyMass * (0.3185 + 0.01445*bodyMass - 0.00114*bodyHeight*100) / massNorm}"/>
+	<xacro:property name="hand_mass" value="${bodyMass * (-0.1165 + 0.0036*bodyMass + 0.00175*bodyHeight*100) / massNorm}"/>
+	<xacro:property name="palm_mass" value="${0.7*hand_mass}"/>
+	<xacro:property name="fingers_mass" value="${0.3*hand_mass}"/>
+	<xacro:property name="thigh_mass" value="${bodyMass * (-2.649 + 0.1463*bodyMass + 0.0137*bodyHeight*100) / massNorm}"/>
+	<xacro:property name="shank_mass" value="${bodyMass * (-1.592 + 0.03616*bodyMass + 0.0121*bodyHeight*100) / massNorm}"/>
+	<xacro:property name="foot_mass" value="${bodyMass * (-0.829 + 0.0077*bodyMass + 0.0073*bodyHeight*100) / massNorm}"/>
+	<xacro:property name="massSensor" value="0.000000001"/>
+	<xacro:property name="radius_load" value="0.05"/>
+	<xacro:property name="length_load" value="0.15"/>
+	<xacro:property name="mass_load" value="0.780"/>
+	<xacro:macro name="box_inertia" params="m Lx Ly Lz">
+		<inertia ixx="${1/12 * m * (Ly*Ly + Lz*Lz)}" ixy="0" ixz="0" iyy="${1/12 * m * (Lx*Lx + Lz*Lz)}" iyz="0" izz="${1/12 * m * (Lx*Lx + Ly*Ly)}"/>
+	</xacro:macro>
+	<xacro:macro name="cylinder_inertia" params="m L r">
+		<inertia ixx="${1/12 * m * (3*r*r + L*L)}" ixy="0" ixz="0" iyy="${1/12 * m * (3*r*r + L*L)}" iyz="0" izz="${1/2 * m * r*r}"/>
+	</xacro:macro>
+	<xacro:macro name="sphere_inertia" params="m r">
+		<inertia ixx="${2/5 * m * r*r}" ixy="0" ixz="0" iyy="${2/5 * m * r*r}" iyz="0" izz="${2/5 * m * r*r}"/>
+	</xacro:macro>
+	<xacro:property name="virtual_radius" value="0.001"/>
+	<xacro:macro name="virtual_body" params="name m">
+		<link name="${name}">
+			<inertial>
+				<mass value="${m}"/>
+				<origin rpy="0 0 0" xyz="0 0 0"/>
+				<sphere_inertia m="${m}" r="${virtual_radius}"/>
+			</inertial>
+		</link>
+	</xacro:macro>
+	<material name="blue">
+		<color rgba="0 0 0.8 1"/>
+	</material>
+	<material name="red">
+		<color rgba="0.8 0 0 1"/>
+	</material>
+	<link name="pelvis">
+		<visual>
+			<geometry>
+				<box size="${pelvis_depth} ${pelvis_width} ${pelvis_length}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${pelvis_length/2-hip_thickness}"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${pelvis_depth} ${pelvis_width} ${pelvis_length}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${pelvis_length/2-hip_thickness}"/>
+		</collision>
+		<inertial>
+			<mass value="${0.7*pelvis_mass}"/>
+			<origin rpy="0 0 0" xyz="0 0 ${pelvis_length/2-hip_thickness}"/>
+			<box_inertia Lx="${pelvis_depth}" Ly="${pelvis_width}" Lz="${pelvis_length}" m="${0.7*pelvis_mass}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.1*pelvis_mass}" name="body_L5_1"/>
+	<virtual_body m="${0.1*lumbarspine_mass}" name="body_L5_2"/>
+	<link name="lumbar_spine">
+		<visual>
+			<geometry>
+				<box size="${lumbarspine_depth} ${lumbarspine_width} ${lumbarspine_length}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${lumbarspine_length/2}"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${lumbarspine_depth} ${lumbarspine_width} ${lumbarspine_length}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${lumbarspine_length/2}"/>
+		</collision>
+		<inertial>
+			<mass value="${0.8*lumbarspine_mass}"/>
+			<origin rpy="0 0 0" xyz="0 0 ${lumbarspine_length/2}"/>
+			<box_inertia Lx="${lumbarspine_depth}" Ly="${lumbarspine_width}" Lz="${lumbarspine_length}" m="${0.8*lumbarspine_mass}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.1*lumbarspine_mass}" name="body_T8_1"/>
+	<virtual_body m="${0.1*thoracicspine_mass}" name="body_T8_2"/>
+	<link name="thoracic_spine">
+		<visual>
+			<geometry>
+				<box size="${thoracicspine_depth} ${thoracicspine_width} ${thoracicspine_length}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${thoracicspine_length/2}"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${thoracicspine_depth} ${thoracicspine_width} ${thoracicspine_length}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${thoracicspine_length/2}"/>
+		</collision>
+		<inertial>
+			<mass value="${0.65*thoracicspine_mass}"/>
+			<origin rpy="0 0 0" xyz="0 0 ${thoracicspine_length/2}"/>
+			<box_inertia Lx="${thoracicspine_depth}" Ly="${thoracicspine_width}" Lz="${thoracicspine_length}" m="${0.65*thoracicspine_mass}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.05*thoracicspine_mass}" name="body_C7_1"/>
+	<virtual_body m="${0.2*neck_mass}" name="body_C7_2"/>
+	<link name="neck">
+		<visual>
+			<geometry>
+				<cylinder length="${neck_length}" radius="${neck_radius}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${neck_length/2}"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${neck_radius*2} ${neck_radius*2} ${neck_length}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${neck_length/2}"/>
+		</collision>
+		<inertial>
+			<mass value="${0.8*neck_mass}"/>
+			<origin rpy="0 0 0" xyz="0 0 ${neck_length/2}"/>
+			<cylinder_inertia L="${neck_length}" m="${0.8*neck_mass}" r="${neck_radius}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.1*head_mass}" name="body_C1"/>
+	<link name="head">
+		<visual>
+			<geometry>
+				<sphere radius="${head_radius}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${C1_headtop - headbase_headtop/2}"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<sphere radius="${head_radius*0.8}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${C1_headtop - headbase_headtop/2}"/>
+		</collision>
+		<inertial>
+			<mass value="${0.9*head_mass}"/>
+			<origin rpy="0 0 0" xyz="0 0 ${C1_headtop - headbase_headtop/2}"/>
+			<cylinder_inertia L="${head_length}" m="${0.9*head_mass}" r="${head_radius}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.1*thoracicspine_mass}" name="body_T4_right_clavicular"/>
+	<link name="right_clavicular">
+		<visual>
+			<geometry>
+				<cylinder length="${r_clavicular_length}" radius="${clavicular_radius}"/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${-r_clavicular_length/2} 0"/>
+			<material name="blue"/>
+		</visual>
+		<inertial>
+			<mass value="${0.9*clavicular_mass}"/>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${-r_clavicular_length/2} 0"/>
+			<cylinder_inertia L="${r_clavicular_length}" m="${0.9*clavicular_mass}" r="${clavicular_radius}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.1*clavicular_mass}" name="body_right_shoulder_1"/>
+	<virtual_body m="${0.1*arm_mass}" name="body_right_shoulder_2"/>
+	<link name="right_arm">
+		<visual>
+			<geometry>
+				<cylinder length="${r_arm_length}" radius="${arm_radius}"/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${-r_arm_length/2} 0"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${arm_radius*cos(PI/4)*2} ${arm_radius*cos(PI/4)*2} ${r_arm_length}"/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${-r_arm_length/2} 0"/>
+		</collision>
+		<inertial>
+			<mass value="${0.8*arm_mass}"/>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${-r_arm_length/2} 0"/>
+			<cylinder_inertia L="${r_arm_length}" m="${0.8*arm_mass}" r="${arm_radius}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.1*arm_mass}" name="body_right_elbow"/>
+	<link name="right_forearm">
+		<visual>
+			<geometry>
+				<cylinder length="${r_forearm_length}" radius="${forearm_radius}"/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${-r_forearm_length/2} 0"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${forearm_radius*cos(PI/4)*2} ${forearm_radius*cos(PI/4)*2} ${r_forearm_length}"/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${-r_forearm_length/2} 0"/>
+		</collision>
+		<inertial>
+			<mass value="${0.9*forearm_mass}"/>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${-r_forearm_length/2} 0"/>
+			<cylinder_inertia L="${-r_forearm_length}" m="${0.9*forearm_mass}" r="${forearm_radius}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.1*forearm_mass}" name="body_right_wrist"/>
+	<link name="right_palm">
+		<visual>
+			<geometry>
+				<box size="${palm_width} ${palm_depth} ${r_palm_length}"/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${-r_palm_length/2} 0"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${palm_width} ${palm_depth} ${r_palm_length} "/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${-r_palm_length/2} 0"/>
+		</collision>
+		<inertial>
+			<mass value="${palm_mass}"/>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${-r_palm_length/2} 0"/>
+			<box_inertia Lx="${palm_width}" Ly="${palm_depth}" Lz="${r_palm_length}" m="${palm_mass}"/>
+		</inertial>
+	</link>
+	<link name="right_fingers">
+		<visual>
+			<geometry>
+				<box size="${fingers_width} ${fingers_depth} ${r_fingers_length}"/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${-r_fingers_length/2} 0"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${fingers_width} ${fingers_depth} ${r_fingers_length} "/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${-r_fingers_length/2} 0"/>
+		</collision>
+		<inertial>
+			<mass value="${fingers_mass}"/>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${-r_fingers_length/2} 0"/>
+			<box_inertia Lx="${fingers_width}" Ly="${fingers_depth}" Lz="${r_fingers_length}" m="${fingers_mass}"/>
+		</inertial>
+	</link>
+	<link name="right_load">
+		<visual>
+			<geometry>
+				<cylinder length="${length_load}" radius="${radius_load}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<material name="red"/>
+		</visual>
+		<inertial>
+			<mass value="${mass_load}"/>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<cylinder_inertia L="${length_load}" m="${mass_load}" r="${radius_load}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.1*thoracicspine_mass}" name="body_T4_left_clavicular"/>
+	<link name="left_clavicular">
+		<visual>
+			<geometry>
+				<cylinder length="${l_clavicular_length}" radius="${clavicular_radius}"/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${l_clavicular_length/2} 0"/>
+			<material name="blue"/>
+		</visual>
+		<inertial>
+			<mass value="${0.9*clavicular_mass}"/>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${l_clavicular_length/2} 0"/>
+			<cylinder_inertia L="${l_clavicular_length}" m="${0.9*clavicular_mass}" r="${clavicular_radius}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.1*clavicular_mass}" name="body_left_shoulder_1"/>
+	<virtual_body m="${0.1*arm_mass}" name="body_left_shoulder_2"/>
+	<link name="left_arm">
+		<visual>
+			<geometry>
+				<cylinder length="${l_arm_length}" radius="${arm_radius}"/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${l_arm_length/2} 0"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${arm_radius*cos(PI/4)*2} ${arm_radius*cos(PI/4)*2} ${l_arm_length}"/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${l_arm_length/2} 0"/>
+		</collision>
+		<inertial>
+			<mass value="${0.8*arm_mass}"/>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${l_arm_length/2} 0"/>
+			&gt;
+			<cylinder_inertia L="${l_arm_length}" m="${0.8*arm_mass}" r="${arm_radius}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.1*arm_mass}" name="body_left_elbow"/>
+	<link name="left_forearm">
+		<visual>
+			<geometry>
+				<cylinder length="${l_forearm_length}" radius="${forearm_radius}"/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${l_forearm_length/2} 0"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${forearm_radius*cos(PI/4)*2} ${forearm_radius*cos(PI/4)*2} ${l_forearm_length}"/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${l_forearm_length/2} 0"/>
+		</collision>
+		<inertial>
+			<mass value="${0.9*forearm_mass}"/>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${l_forearm_length/2} 0"/>
+			<cylinder_inertia L="${l_forearm_length}" m="${0.9*forearm_mass}" r="${forearm_radius}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.1*forearm_mass}" name="body_left_wrist"/>
+	<link name="left_palm">
+		<visual>
+			<geometry>
+				<box size="${palm_width} ${palm_depth} ${l_palm_length}"/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${l_palm_length/2} 0"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${palm_width} ${palm_depth} ${l_palm_length}"/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${l_palm_length/2} 0"/>
+		</collision>
+		<inertial>
+			<mass value="${palm_mass}"/>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${l_palm_length/2} 0"/>
+			<box_inertia Lx="${palm_width}" Ly="${palm_depth}" Lz="${l_palm_length}" m="${palm_mass}"/>
+		</inertial>
+	</link>
+	<link name="left_fingers">
+		<visual>
+			<geometry>
+				<box size="${fingers_width} ${fingers_depth} ${l_fingers_length}"/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${l_fingers_length/2} 0"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${fingers_width} ${fingers_depth} ${l_fingers_length}"/>
+			</geometry>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${l_fingers_length/2} 0"/>
+		</collision>
+		<inertial>
+			<mass value="${fingers_mass}"/>
+			<origin rpy="${PI/2} 0 0" xyz="0 ${l_fingers_length/2} 0"/>
+			<box_inertia Lx="${fingers_width}" Ly="${fingers_depth}" Lz="${l_fingers_length}" m="${fingers_mass}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.1*pelvis_mass}" name="body_right_hip_1"/>
+	<virtual_body m="${0.1*thigh_mass}" name="body_right_hip_2"/>
+	<link name="right_thigh">
+		<visual>
+			<geometry>
+				<cylinder length="${r_thigh_length}" radius="${thigh_radius}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${-r_thigh_length/2}"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${thigh_radius*cos(PI/4)*2} ${thigh_radius*cos(PI/4)*2} ${r_thigh_length}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${-r_thigh_length/2}"/>
+		</collision>
+		<inertial>
+			<mass value="${0.8*thigh_mass}"/>
+			<origin rpy="0 0 0" xyz="0 0 ${-r_thigh_length/2}"/>
+			<cylinder_inertia L="${r_thigh_length}" m="${0.8*thigh_mass}" r="${thigh_radius}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.1*thigh_mass}" name="body_right_knee"/>
+	<link name="right_shank">
+		<visual>
+			<geometry>
+				<cylinder length="${r_shank_length}" radius="${shank_radius}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${-r_shank_length/2}"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${shank_radius*cos(PI/4)*2} ${shank_radius*cos(PI/4)*2} ${r_shank_length}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${-r_shank_length/2}"/>
+		</collision>
+		<inertial>
+			<mass value="${0.9*shank_mass}"/>
+			<origin rpy="0 0 0" xyz="0 0 ${-r_shank_length/2}"/>
+			<cylinder_inertia L="${r_shank_length}" m="${0.9*shank_mass}" r="${shank_radius}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.1*shank_mass}" name="body_right_ankle"/>
+	<link name="right_foot">
+		<visual>
+			<geometry>
+				<box size="${r_foot_length} ${r_foot_width} ${r_foot_depth}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="${r_foot_length/2-0.2*r_foot_length} 0 ${-r_foot_depth/2}"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${r_foot_length} ${r_foot_width} ${r_foot_depth}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="${r_foot_length/2-0.2*r_foot_length} 0 ${-r_foot_depth/2}"/>
+		</collision>
+		<inertial>
+			<mass value="${foot_mass}"/>
+			<origin rpy="0 0 0" xyz="${r_foot_length/2-0.2*r_foot_length} 0 ${-r_foot_depth/2}"/>
+			<box_inertia Lx="${r_foot_length}" Ly="${r_foot_width}" Lz="${r_foot_depth}" m="${foot_mass}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.1*pelvis_mass}" name="body_left_hip_1"/>
+	<virtual_body m="${0.1*thigh_mass}" name="body_left_hip_2"/>
+	<link name="left_thigh">
+		<visual>
+			<geometry>
+				<cylinder length="${l_thigh_length}" radius="${thigh_radius}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${-l_thigh_length/2}"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${thigh_radius*cos(PI/4)*2} ${thigh_radius*cos(PI/4)*2} ${l_thigh_length}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${-l_thigh_length/2}"/>
+			&gt;
+		</collision>
+		<inertial>
+			<mass value="${0.8*thigh_mass}"/>
+			<origin rpy="0 0 0" xyz="0 0 ${-l_thigh_length/2}"/>
+			<cylinder_inertia L="${l_thigh_length}" m="${0.8*thigh_mass}" r="${thigh_radius}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.1*thigh_mass}" name="body_left_knee"/>
+	<link name="left_shank">
+		<visual>
+			<geometry>
+				<cylinder length="${l_shank_length}" radius="${shank_radius}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${-l_shank_length/2}"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${shank_radius*cos(PI/4)*2} ${shank_radius*cos(PI/4)*2} ${l_shank_length}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 ${-l_shank_length/2}"/>
+		</collision>
+		<inertial>
+			<mass value="${0.9*shank_mass}"/>
+			<origin rpy="0 0 0" xyz="0 0 ${-l_shank_length/2}"/>
+			<cylinder_inertia L="${l_shank_length}" m="${0.9*shank_mass}" r="${shank_radius}"/>
+		</inertial>
+	</link>
+	<virtual_body m="${0.1*shank_mass}" name="body_left_ankle"/>
+	<link name="left_foot">
+		<visual>
+			<geometry>
+				<box size="${l_foot_length} ${l_foot_width} ${l_foot_depth}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="${l_foot_length/2-0.2*l_foot_length} 0 ${-l_foot_depth/2}"/>
+			<material name="blue"/>
+		</visual>
+		<collision>
+			<geometry>
+				<box size="${l_foot_length} ${l_foot_width} ${l_foot_depth}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="${l_foot_length/2-0.2*l_foot_length} 0 ${-l_foot_depth/2}"/>
+		</collision>
+		<inertial>
+			<mass value="${foot_mass}"/>
+			<origin rpy="0 0 0" xyz="${l_foot_length/2-0.2*l_foot_length} 0 ${-l_foot_depth/2}"/>
+			<box_inertia Lx="${l_foot_length}" Ly="${l_foot_width}" Lz="${l_foot_depth}" m="${foot_mass}"/>
+		</inertial>
+	</link>
+	<joint name="lumbarspine_X" type="revolute">
+		<parent link="pelvis"/>
+		<child link="body_L5_1"/>
+		<axis xyz="1 0 0"/>
+		<origin xyz="0 0 ${S5_L5}"/>
+		<limit effort="${155*forceCapacity}" lower="-0.7" upper="0.7" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="lumbarspine_Y" type="revolute">
+		<parent link="body_L5_1"/>
+		<child link="body_L5_2"/>
+		<axis xyz="0 1 0"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${228*forceCapacity}" lower="-0.7" upper="0.9" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="lumbarspine_Z" type="revolute">
+		<parent link="body_L5_2"/>
+		<child link="lumbar_spine"/>
+		<axis xyz="0 0 1"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${65*forceCapacity}" lower="-0.7" upper="0.7" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="thoracicspine_X" type="revolute">
+		<parent link="lumbar_spine"/>
+		<child link="body_T8_1"/>
+		<axis xyz="1 0 0"/>
+		<origin xyz="0 0 ${L5_T8}"/>
+		<limit effort="${155*forceCapacity}" lower="-0.7" upper="0.7" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="thoracicspine_Y" type="revolute">
+		<parent link="body_T8_1"/>
+		<child link="body_T8_2"/>
+		<axis xyz="0 1 0"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${228*forceCapacity}" lower="-0.7" upper="0.9" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="thoracicspine_Z" type="revolute">
+		<parent link="body_T8_2"/>
+		<child link="thoracic_spine"/>
+		<axis xyz="0 0 1"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${65*forceCapacity}" lower="-0.7" upper="0.7" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="neck_X" type="revolute">
+		<parent link="thoracic_spine"/>
+		<child link="body_C7_1"/>
+		<axis xyz="1 0 0"/>
+		<origin xyz="0 0 ${T8_C7}"/>
+		<limit effort="50" lower="-0.87" upper="0.87" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="neck_Y" type="revolute">
+		<parent link="body_C7_1"/>
+		<child link="body_C7_2"/>
+		<axis xyz="0 1 0"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="50" lower="-0.87" upper="1.5" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="neck_Z" type="revolute">
+		<parent link="body_C7_2"/>
+		<child link="neck"/>
+		<axis xyz="0 0 1"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="50" lower="-1.5" upper="1.5" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="head_X" type="revolute">
+		<parent link="neck"/>
+		<child link="body_C1"/>
+		<axis xyz="1 0 0"/>
+		<origin xyz="0 0 ${C7_C1}"/>
+		<limit effort="20" lower="-0.87" upper="0.87" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="head_Y" type="revolute">
+		<parent link="body_C1"/>
+		<child link="head"/>
+		<axis xyz="0 1 0"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="20" lower="-0.87" upper="1.5" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="right_clavicular_X" type="revolute">
+		<parent link="thoracic_spine"/>
+		<child link="body_T4_right_clavicular"/>
+		<axis xyz="1 0 0"/>
+		<origin rpy="0 0 0" xyz="0 ${-r_spine_CSJ} ${r_T8_CSJheight}"/>
+		<limit effort="${105*forceCapacity}" lower="-0.2" upper="0.4" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="right_clavicular_Z" type="revolute">
+		<parent link="body_T4_right_clavicular"/>
+		<child link="right_clavicular"/>
+		<axis xyz="0 0 1"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${107*forceCapacity}" lower="-0.35" upper="0.35" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="right_shoulder_X" type="revolute">
+		<parent link="right_clavicular"/>
+		<child link="body_right_shoulder_1"/>
+		<axis xyz="1 0 0"/>
+		<origin xyz="0 ${-r_shoulderWidth} 0"/>
+		<limit effort="${69*forceCapacity}" lower="-1.57" upper="2.4" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="right_shoulder_Y" type="revolute">
+		<parent link="body_right_shoulder_1"/>
+		<child link="body_right_shoulder_2"/>
+		<axis xyz="0 1 0"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${90*forceCapacity}" lower="-1.57" upper="0.78" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="right_shoulder_Z" type="revolute">
+		<parent link="body_right_shoulder_2"/>
+		<child link="right_arm"/>
+		<axis xyz="0 0 1"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${51*forceCapacity}" lower="-1.57" upper="3.14" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="right_elbow_Z" type="revolute">
+		<parent link="right_arm"/>
+		<child link="body_right_elbow"/>
+		<axis xyz="0 0 1"/>
+		<origin xyz="0 ${-r_arm_length} 0"/>
+		<limit effort="${75*forceCapacity}" lower="-0.08" upper="3.14" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="right_elbow_Y" type="revolute">
+		<parent link="body_right_elbow"/>
+		<child link="right_forearm"/>
+		<axis xyz="0 1 0"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${13*forceCapacity}" lower="-1.97" upper="1.35" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="right_wrist_X" type="revolute">
+		<parent link="right_forearm"/>
+		<child link="body_right_wrist"/>
+		<axis xyz="1 0 0"/>
+		<origin xyz="0 ${-r_forearm_length} 0"/>
+		<limit effort="${11*forceCapacity}" lower="-1.57" upper="1.57" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="right_wrist_Z" type="revolute">
+		<parent link="body_right_wrist"/>
+		<child link="right_palm"/>
+		<axis xyz="0 0 1"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${10*forceCapacity}" lower="-0.82" upper="0.47" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="right_grip" type="fixed">
+		<parent link="right_palm"/>
+		<child link="right_fingers"/>
+		<origin rpy="0 0 0 " xyz="0 ${-r_palm_length} 0"/>
+	</joint>
+	<joint name="left_clavicular_X" type="revolute">
+		<parent link="thoracic_spine"/>
+		<child link="body_T4_left_clavicular"/>
+		<axis xyz="1 0 0"/>
+		<origin rpy="0 0 0" xyz="0 ${l_spine_CSJ} ${l_T8_CSJheight}"/>
+		<limit effort="${105*forceCapacity}" lower="-0.4" upper="0.2" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="left_clavicular_Z" type="revolute">
+		<parent link="body_T4_left_clavicular"/>
+		<child link="left_clavicular"/>
+		<axis xyz="0 0 1"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${107*forceCapacity}" lower="-0.35" upper="0.35" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="J_right_load" type="fixed">
+		<parent link="right_fingers"/>
+		<child link="right_load"/>
+		<origin rpy="0 0 0" xyz="0 ${-r_fingers_length/2} ${-length_load/2}"/>
+	</joint>
+	<joint name="left_shoulder_X" type="revolute">
+		<parent link="left_clavicular"/>
+		<child link="body_left_shoulder_1"/>
+		<axis xyz="1 0 0"/>
+		<origin xyz="0 ${l_shoulderWidth} 0"/>
+		<limit effort="${69*forceCapacity}" lower="-2.4" upper="1.57" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="left_shoulder_Y" type="revolute">
+		<parent link="body_left_shoulder_1"/>
+		<child link="body_left_shoulder_2"/>
+		<axis xyz="0 1 0"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${90*forceCapacity}" lower="-1.57" upper="0.78" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="left_shoulder_Z" type="revolute">
+		<parent link="body_left_shoulder_2"/>
+		<child link="left_arm"/>
+		<axis xyz="0 0 1"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${51*forceCapacity}" lower="-3.14" upper="1.57" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="left_elbow_Z" type="revolute">
+		<parent link="left_arm"/>
+		<child link="body_left_elbow"/>
+		<axis xyz="0 0 1"/>
+		<origin xyz="0 ${l_arm_length} 0"/>
+		<limit effort="${75*forceCapacity}" lower="-3.14" upper="0.08" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="left_elbow_Y" type="revolute">
+		<parent link="body_left_elbow"/>
+		<child link="left_forearm"/>
+		<axis xyz="0 1 0"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${13*forceCapacity}" lower="-1.97" upper="1.35" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="left_wrist_X" type="revolute">
+		<parent link="left_forearm"/>
+		<child link="body_left_wrist"/>
+		<axis xyz="1 0 0"/>
+		<origin xyz="0 ${l_forearm_length} 0"/>
+		<limit effort="${11*forceCapacity}" lower="-1.57" upper="1.57" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="left_wrist_Z" type="revolute">
+		<parent link="body_left_wrist"/>
+		<child link="left_palm"/>
+		<axis xyz="0 0 1"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${10*forceCapacity}" lower="-0.47" upper="0.82" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="left_grip" type="fixed">
+		<parent link="left_palm"/>
+		<child link="left_fingers"/>
+		<origin rpy="0 0 0 " xyz="0 ${l_palm_length} 0"/>
+	</joint>
+	<joint name="right_hip_X" type="revolute">
+		<parent link="pelvis"/>
+		<child link="body_right_hip_1"/>
+		<axis xyz="1 0 0"/>
+		<origin xyz="0 ${-r_hipWidth} 0"/>
+		<limit effort="${108*forceCapacity}" lower="-0.93" upper="0.54" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="right_hip_Y" type="revolute">
+		<parent link="body_right_hip_1"/>
+		<child link="body_right_hip_2"/>
+		<axis xyz="0 1 0"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${186*forceCapacity}" lower="-2.531" upper="0.349" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="right_hip_Z" type="revolute">
+		<parent link="body_right_hip_2"/>
+		<child link="right_thigh"/>
+		<axis xyz="0 0 1"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${67*forceCapacity}" lower="-0.59" upper="0.68" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="right_knee_Y" type="revolute">
+		<parent link="right_thigh"/>
+		<child link="body_right_knee"/>
+		<axis xyz="0 1 0"/>
+		<origin xyz="0 0 ${-r_thigh_length}"/>
+		<limit effort="${164*forceCapacity}" lower="-0.087" upper="2.8" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="right_knee_Z" type="revolute">
+		<parent link="body_right_knee"/>
+		<child link="right_shank"/>
+		<axis xyz="0 0 1"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${22*forceCapacity}" lower="-0.75" upper="0.61" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="right_ankle_X" type="revolute">
+		<parent link="right_shank"/>
+		<child link="body_right_ankle"/>
+		<axis xyz="1 0 0"/>
+		<origin xyz="0 0 ${-r_shank_length}"/>
+		<limit effort="${29*forceCapacity}" lower="-0.4" upper="0.4" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="right_ankle_Y" type="revolute">
+		<parent link="body_right_ankle"/>
+		<child link="right_foot"/>
+		<axis xyz="0 1 0"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${123*forceCapacity}" lower="-0.66" upper="0.66" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="left_hip_X" type="revolute">
+		<parent link="pelvis"/>
+		<child link="body_left_hip_1"/>
+		<axis xyz="1 0 0"/>
+		<origin xyz="0 ${l_hipWidth} 0"/>
+		<limit effort="${108*forceCapacity}" lower="-0.54" upper="0.93" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="left_hip_Y" type="revolute">
+		<parent link="body_left_hip_1"/>
+		<child link="body_left_hip_2"/>
+		<axis xyz="0 1 0"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${186*forceCapacity}" lower="-2.531" upper="0.349" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="left_hip_Z" type="revolute">
+		<parent link="body_left_hip_2"/>
+		<child link="left_thigh"/>
+		<axis xyz="0 0 1"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${67*forceCapacity}" lower="-0.68" upper="0.59" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="left_knee_Y" type="revolute">
+		<parent link="left_thigh"/>
+		<child link="body_left_knee"/>
+		<axis xyz="0 1 0"/>
+		<origin xyz="0 0 ${-l_thigh_length}"/>
+		<limit effort="${164*forceCapacity}" lower="-0.087" upper="2.8" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="left_knee_Z" type="revolute">
+		<parent link="body_left_knee"/>
+		<child link="left_shank"/>
+		<axis xyz="0 0 1"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${22*forceCapacity}" lower="-0.61" upper="0.75" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="left_ankle_X" type="revolute">
+		<parent link="left_shank"/>
+		<child link="body_left_ankle"/>
+		<axis xyz="1 0 0"/>
+		<origin xyz="0 0 ${-l_shank_length}"/>
+		<limit effort="${29*forceCapacity}" lower="-0.4" upper="0.4" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<joint name="left_ankle_Y" type="revolute">
+		<parent link="body_left_ankle"/>
+		<child link="left_foot"/>
+		<axis xyz="0 1 0"/>
+		<origin xyz="0 0 0"/>
+		<limit effort="${123*forceCapacity}" lower="-0.66" upper="0.66" velocity="${maxVelJoint}"/>
+		<dynamics damping="${jointDamping}" friction="${jointFriction}"/>
+	</joint>
+	<link name="right_forearm_sensor">
+		<inertial>
+			<mass value="${massSensor}"/>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<inertia ixx="1e-8" ixy="0" ixz="0" iyy="1e-8" iyz="0" izz="1e-8"/>
+		</inertial>
+		<visual>
+			<geometry>
+				<sphere radius="${virtual_radius}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<material name="red"/>
+		</visual>
+	</link>
+	<joint name="J_right_forearm_sensor" type="fixed">
+		<parent link="right_forearm"/>
+		<child link="right_forearm_sensor"/>
+		<origin rpy="${-PI/2} ${-PI/2} 0" xyz="0 ${-2*l_forearm_length/3} 0"/>
+	</joint>
+	<link name="right_arm_sensor">
+		<inertial>
+			<mass value="${massSensor}"/>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<inertia ixx="1e-8" ixy="0" ixz="0" iyy="1e-8" iyz="0" izz="1e-8"/>
+		</inertial>
+		<visual>
+			<geometry>
+				<sphere radius="${virtual_radius}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<material name="red"/>
+		</visual>
+	</link>
+	<link name="right_forearm_motor">
+		<inertial>
+			<mass value="${massSensor}"/>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<inertia ixx="1e-8" ixy="0" ixz="0" iyy="1e-8" iyz="0" izz="1e-8"/>
+		</inertial>
+		<visual>
+			<geometry>
+				<sphere radius="${virtual_radius}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<material name="red"/>
+		</visual>
+	</link>
+	<joint name="J_right_forearm_motor" type="fixed">
+		<parent link="body_right_elbow"/>
+		<child link="right_forearm_motor"/>
+		<origin rpy="${-PI} 0 0" xyz="0.0 0 0.09"/>
+	</joint>
+	<link name="right_shoulder_sensor">
+		<inertial>
+			<mass value="${massSensor}"/>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<inertia ixx="1e-8" ixy="0" ixz="0" iyy="1e-8" iyz="0" izz="1e-8"/>
+		</inertial>
+		<visual>
+			<geometry>
+				<sphere radius="${virtual_radius}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<material name="red"/>
+		</visual>
+	</link>
+	<joint name="J_right_arm_sensor" type="fixed">
+		<parent link="right_arm"/>
+		<child link="right_arm_sensor"/>
+		<origin rpy="${-PI/2} ${-PI/2} 0" xyz="0 ${-r_arm_length/2} ${arm_radius}"/>
+	</joint>
+	<joint name="J_right_shoulder_sensor" type="fixed">
+		<parent link="right_arm"/>
+		<child link="right_shoulder_sensor"/>
+		<origin rpy="${PI} ${PI} ${PI/2}" xyz="0.0 0 ${arm_radius+0.05}"/>
+	</joint>
+	<link name="left_forearm_sensor">
+		<inertial>
+			<mass value="${massSensor}"/>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<inertia ixx="1e-8" ixy="0" ixz="0" iyy="1e-8" iyz="0" izz="1e-8"/>
+		</inertial>
+		<visual>
+			<geometry>
+				<sphere radius="${virtual_radius}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<material name="red"/>
+		</visual>
+	</link>
+	<joint name="J_left_forearm_sensor" type="fixed">
+		<parent link="left_forearm"/>
+		<child link="left_forearm_sensor"/>
+		<origin rpy="${PI/2} 0 0" xyz="0 ${2*l_forearm_length/3} 0"/>
+	</joint>
+	<link name="left_arm_sensor">
+		<inertial>
+			<mass value="${massSensor}"/>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<inertia ixx="1e-8" ixy="0" ixz="0" iyy="1e-8" iyz="0" izz="1e-8"/>
+		</inertial>
+		<visual>
+			<geometry>
+				<sphere radius="${virtual_radius}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<material name="red"/>
+		</visual>
+	</link>
+	<joint name="J_left_arm_sensor" type="fixed">
+		<parent link="left_arm"/>
+		<child link="left_arm_sensor"/>
+		<origin rpy="${-PI/2} ${-PI/2} 0" xyz="0 ${r_arm_length/2} ${arm_radius}"/>
+	</joint>
+	<link name="left_shoulder_sensor">
+		<inertial>
+			<mass value="${massSensor}"/>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<inertia ixx="1e-8" ixy="0" ixz="0" iyy="1e-8" iyz="0" izz="1e-8"/>
+		</inertial>
+		<visual>
+			<geometry>
+				<sphere radius="${virtual_radius}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<material name="red"/>
+		</visual>
+	</link>
+	<joint name="J_left_shoulder_sensor" type="fixed">
+		<parent link="left_arm"/>
+		<child link="left_shoulder_sensor"/>
+		<origin rpy="0 0 ${PI/2}" xyz="0 0 ${arm_radius+0.05}"/>
+	</joint>
+	<link name="thoracic_sensor">
+		<inertial>
+			<mass value="${massSensor}"/>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<inertia ixx="1e-8" ixy="0" ixz="0" iyy="1e-8" iyz="0" izz="1e-8"/>
+		</inertial>
+		<visual>
+			<geometry>
+				<sphere radius="${virtual_radius}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="${-thoracicspine_depth/4} 0 ${thoracicspine_length/2}"/>
+			<material name="red"/>
+		</visual>
+	</link>
+	<joint name="J_thoracic_sensor" type="fixed">
+		<parent link="thoracic_spine"/>
+		<child link="thoracic_sensor"/>
+		<origin rpy="0 0 0 " xyz="${-thoracicspine_depth/4} 0 ${thoracicspine_length/2}"/>
+	</joint>
+	<link name="pelvis_sensor">
+		<inertial>
+			<mass value="${massSensor}"/>
+			<origin rpy="0 0 0" xyz="0 0 0"/>
+			<inertia ixx="1e-8" ixy="0" ixz="0" iyy="1e-8" iyz="0" izz="1e-8"/>
+		</inertial>
+		<visual>
+			<geometry>
+				<sphere radius="${virtual_radius}"/>
+			</geometry>
+			<origin rpy="0 0 0" xyz="${-pelvis_depth/4} 0 ${pelvis_length/2}"/>
+			<material name="red"/>
+		</visual>
+	</link>
+	<joint name="J_pelvis_sensor" type="fixed">
+		<parent link="pelvis"/>
+		<child link="pelvis_sensor"/>
+		<origin rpy="0 0 0 " xyz="${-pelvis_depth/4} 0 0"/>
+	</joint>
+</robot>
